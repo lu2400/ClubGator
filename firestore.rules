@@ -6,6 +6,26 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    match /penguins/{uid} {
+      allow get: if signedIn() && request.auth.uid == uid;
+
+      allow create: if signedIn()
+        && request.auth.uid == uid
+        && exists(/databases/$(database)/documents/users/$(uid))
+        && request.resource.data.keys().hasAll([
+          'ownerId', 'appearance', 'createdAt', 'schemaVersion'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'ownerId', 'appearance', 'createdAt', 'schemaVersion'
+        ])
+        && request.resource.data.ownerId == uid
+        && request.resource.data.appearance is map
+        && request.resource.data.appearance.size() == 0
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.schemaVersion is int
+        && request.resource.data.schemaVersion == 1;
+    }
+
     match /users/{uid} {
       allow get: if signedIn() && request.auth.uid == uid;
 
