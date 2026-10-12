@@ -23,6 +23,14 @@ function validate(v) {
 // converting firebase auth error codes to plain messages.
 function friendlyError(err) {
   switch (err?.code) {
+    case "registration/invalid-username":
+    case "registration/username-taken":
+    case "registration/profile-exists":
+      return err.message;
+    case "permission-denied":
+      return "Profile save was blocked. Check the Firestore rules, then retry.";
+    case "unavailable":
+      return "Couldn't save your profile. Check your connection and retry.";
     case "auth/email-already-in-use":
       return "That email already has an account. Please try logging in.";
     case "auth/invalid-email":
