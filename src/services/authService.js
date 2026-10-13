@@ -1,6 +1,12 @@
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { 
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+ } from "firebase/auth";
 import {
   doc,
+  getDoc,
   runTransaction,
   serverTimestamp,
 } from "firebase/firestore";
@@ -82,4 +88,46 @@ export async function registerPlayer({ username, email, password }) {
   });
 
   return { user, profile };
+}
+
+// user login function, also retrieves firestore profile
+export async function loginPlayer({email, password}) {
+  const cleanEmail = email.trim();
+
+  await auth.authStateReady();
+
+  // auth with firebase
+  const credential = await signInWithEmailAndPassword(auth, cleanEmail, password);
+  const user = credential.user;
+
+  // retreive user profile from firestore
+  const profileRef = doc(db, "users", user.uid);
+  const profileSnap = await getDoc(profileRef);
+
+  const profile = profileSnap.exists() ? profileSnap.data() : null;
+
+  return {user, profile};
+}
+
+// sign out function
+export async function logoutPlayer() {
+  await signOut(auth);
+}
+
+// auth state observer to manage session persistence
+export function subscribeToAuthState(callback) {
+  return onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      callback({user: null, profile: null});
+      return;
+    }
+
+    try {
+      const profileSnap = await getDoc(doc(db, "users", user.uid));
+      const profile = profileSnap.exists() ? profileSnap.data() : null;
+      callback({user, profile});
+    } catch {
+      callback({user, profile: null});
+    }
+  });
 }
