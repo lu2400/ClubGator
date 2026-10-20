@@ -1,5 +1,6 @@
 import {
   doc,
+  getDoc,
   runTransaction,
   serverTimestamp,
 } from "firebase/firestore";
@@ -41,4 +42,11 @@ export async function createPenguin() {
 
     return penguin;
   });
+}
+
+export async function getPlayerPenguin(uid) {
+  if (!uid) return null;
+  const penguinRef = doc(db, "penguins", uid);
+  const snap = await getDoc(penguinRef);
+  return snap.exists() ? snap.data() : null;
 }
