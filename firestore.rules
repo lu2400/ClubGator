@@ -1,0 +1,70 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    match /penguins/{uid} {
+      allow get: if signedIn() && request.auth.uid == uid;
+
+      allow create: if signedIn()
+        && request.auth.uid == uid
+        && exists(/databases/$(database)/documents/users/$(uid))
+        && request.resource.data.keys().hasAll([
+          'ownerId', 'appearance', 'createdAt', 'schemaVersion'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'ownerId', 'appearance', 'createdAt', 'schemaVersion'
+        ])
+        && request.resource.data.ownerId == uid
+        && request.resource.data.appearance is map
+        && request.resource.data.appearance.size() == 0
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.schemaVersion is int
+        && request.resource.data.schemaVersion == 1;
+    }
+
+    match /users/{uid} {
+      allow get: if signedIn() && request.auth.uid == uid;
+
+      allow create: if signedIn()
+        && request.auth.uid == uid
+        && request.resource.data.keys().hasAll([
+          'username', 'usernameKey', 'role', 'createdAt'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'username', 'usernameKey', 'role', 'createdAt'
+        ])
+        && request.resource.data.username is string
+        && request.resource.data.username.matches('^[A-Za-z0-9_]{3,16}$')
+        && request.resource.data.usernameKey
+          == request.resource.data.username.lower()
+        && request.resource.data.role == 'player'
+        && request.resource.data.createdAt == request.time
+        && !exists(
+          /databases/$(database)/documents/usernames/$(request.resource.data.usernameKey)
+        )
+        && getAfter(
+          /databases/$(database)/documents/usernames/$(request.resource.data.usernameKey)
+        ).data.uid == uid;
+    }
+
+    match /usernames/{name} {
+      allow get: if signedIn();
+
+      allow create: if signedIn()
+        && name.matches('^[a-z0-9_]{3,16}$')
+        && request.resource.data.keys().hasAll(['uid'])
+        && request.resource.data.keys().hasOnly(['uid'])
+        && request.resource.data.uid == request.auth.uid
+        && !exists(
+          /databases/$(database)/documents/users/$(request.auth.uid)
+        )
+        && getAfter(
+          /databases/$(database)/documents/users/$(request.auth.uid)
+        ).data.usernameKey == name;
+    }
+  }
+}

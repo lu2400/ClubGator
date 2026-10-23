@@ -2,7 +2,7 @@ import { useState } from "react";
 import Tower from "./Tower";
 import "./RegisterPage.css"; // same colour scheme
 const EMPTY = { email: "", password: "" };
-
+import PixelGator from "../PixelGator";
 function validate(v) {
   const e = {};
   if (!/^\S+@\S+\.\S+$/.test(v.email)) e.email = "Enter a valid email address.";
@@ -58,59 +58,61 @@ export default function LoginPage({ onLogin, onSwitchToRegister }) {
       <section className="cg-content">
         <p className="cg-welcome">welcome back to...</p>
         <h1 className="cg-title">Club Gator</h1>
-        <form className="cg-panel" onSubmit={handleSubmit} noValidate>
-          <h2 className="cg-panel-title">Log in</h2>
-          <div className="cg-field">
-            <label htmlFor="email">Email</label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              value={values.email}
-              onChange={handleChange}
-              aria-invalid={!!errors.email}
-              aria-describedby={errors.email ? "email-error" : undefined}
-            />
-            {errors.email && (
-              <p className="cg-error" id="email-error">{errors.email}</p>
+        <div className="cg-login-wrapper"></div>
+          <form className="cg-panel" onSubmit={handleSubmit} noValidate>
+            <h2 className="cg-panel-title">Log in</h2>
+            <div className="cg-field">
+              <label htmlFor="email">Email</label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                value={values.email}
+                onChange={handleChange}
+                aria-invalid={!!errors.email}
+                aria-describedby={errors.email ? "email-error" : undefined}
+              />
+              {errors.email && (
+                <p className="cg-error" id="email-error">{errors.email}</p>
+              )}
+            </div>
+
+            <div className="cg-field">
+              <label htmlFor="password">Password</label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                value={values.password}
+                onChange={handleChange}
+                aria-invalid={!!errors.password}
+                aria-describedby={errors.password ? "password-error" : undefined}
+              />
+              {errors.password && (
+                <p className="cg-error" id="password-error">{errors.password}</p>
+              )}
+            </div>
+
+            {formError && (
+              <p className="cg-error cg-form-error" role="alert">{formError}</p>
             )}
-          </div>
 
-          <div className="cg-field">
-            <label htmlFor="password">Password</label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              autoComplete="current-password"
-              value={values.password}
-              onChange={handleChange}
-              aria-invalid={!!errors.password}
-              aria-describedby={errors.password ? "password-error" : undefined}
-            />
-            {errors.password && (
-              <p className="cg-error" id="password-error">{errors.password}</p>
-            )}
-          </div>
-
-          {formError && (
-            <p className="cg-error cg-form-error" role="alert">{formError}</p>
-          )}
-
-          <button className="cg-button" type="submit" disabled={submitting}>
-            {submitting ? "Logging in..." : "Log in"}
-          </button>
-
-          <p className="cg-switch">
-            New to Club Gator?{" "}
-            <button type="button" className="cg-link" onClick={onSwitchToRegister}>
-              Create an account
+            <button className="cg-button" type="submit" disabled={submitting}>
+              {submitting ? "Logging in..." : "Log in"}
             </button>
-          </p>
-        </form>
-      </section>
-      <div className="cg-ground" aria-hidden="true" />
-    </main>
-  );
-}
+
+            <p className="cg-switch">
+              New to Club Gator?{" "}
+              <button type="button" className="cg-link" onClick={onSwitchToRegister}>
+                Create an account
+              </button>
+            </p>
+          </form>
+        </section>
+        <PixelGator/>
+        <div className="cg-ground" aria-hidden="true" />
+      </main>
+    );
+  }
