@@ -90,7 +90,6 @@ export default function App() {
       </main>
     );
   }
-  }
 
   // unauthenticated routing
   return page === "login" ? (
@@ -119,3 +118,4 @@ export default function App() {
       onSwitchToLogin={() => setPage("login")}
     />
   );
+}
