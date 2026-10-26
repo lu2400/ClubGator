@@ -16,6 +16,8 @@ export default function App() {
   const [session, setSession] = useState({user: null, profile: null});
   const [penguin, setPenguin] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [creatingPenguin, setCreatingPenguin] = useState(false);
+  const [penguinError, setPenguinError] = useState("");
 
   // automatically detect persistent session on page load/refresh
   useEffect(() => {
@@ -43,7 +45,7 @@ export default function App() {
   }
 
   // Logged-in screen shows loaded penguin data
-  if (session.user) {
+  if (session.user && page !== "register") {
     return (
       <main className="cg-scene" style={{ display: "grid", placeItems: "center", color: "white" }}>
         <section className="cg-panel" style={{ textAlign: "center", maxWidth: "420px" }}>
@@ -64,13 +66,33 @@ export default function App() {
                 <button
                   className="cg-button"
                   type="button"
+                  disabled={creatingPenguin}
                   onClick={async () => {
-                    const newPenguin = await createPenguin();
-                    setPenguin(newPenguin);
+                    if (creatingPenguin) return;
+
+                    setCreatingPenguin(true);
+                    setPenguinError("");
+
+                    try {
+                      const newPenguin = await createPenguin();
+                      setPenguin(newPenguin);
+                    } catch {
+                      setPenguinError(
+                        "Couldn't create your penguin. Check your connection and try again."
+                      );
+                    } finally {
+                      setCreatingPenguin(false);
+                    }
                   }}
                 >
-                  Create Starter Penguin
+                  {creatingPenguin ? "Creating..." : "Create Starter Penguin"}
                 </button>
+
+                {penguinError && (
+                  <p className="cg-error" role="alert">
+                    {penguinError}
+                  </p>
+                )}
               </div>
             )}
           </div>
@@ -83,6 +105,7 @@ export default function App() {
               await logoutPlayer();
               setPage("login");
             }}
+            disabled={creatingPenguin}
           >
             Log out
           </button>
