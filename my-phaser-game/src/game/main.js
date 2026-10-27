@@ -15,7 +15,7 @@ const config = {
     backgroundColor: '#028af8',
     scale: {
         mode: Scale.FIT,
-        autoCenter: Scale.CENTER_BOTH
+        autoCenter: Scale.CENTER_HORIZONTALLY
     },
     scene: [
         Boot,

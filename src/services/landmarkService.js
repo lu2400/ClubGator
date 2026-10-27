@@ -19,7 +19,7 @@ export async function seedLandmarksIfEmpty() {
 }
 
 export async function getLandmarks() {
-  const colRef = collection(db, LANDMARKS_COLLECTION);
+  const colRef = collection(db, landmarksCollection);
   const snapshot = await getDocs(colRef);
 
   if (snapshot.empty) {

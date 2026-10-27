@@ -66,5 +66,10 @@ service cloud.firestore {
           /databases/$(database)/documents/users/$(request.auth.uid)
         ).data.usernameKey == name;
     }
+    
+    match /landmarks/{landmarkId} {
+      allow get, list: if signedIn();
+      allow write: if signedIn();
+    }
   }
 }
