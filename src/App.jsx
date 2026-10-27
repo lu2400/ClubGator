@@ -1,3 +1,4 @@
+import PhaserGame from "./game/PhaserGame";
 import { useState, useEffect } from "react";
 import RegisterPage from "./frontend/RegisterPage";
 import LoginPage from "./frontend/LoginPage";
@@ -8,9 +9,6 @@ import {
   subscribeToAuthState,
 } from "./services/authService";
 import { getPlayerPenguin, createPenguin } from "./services/penguinService";
-import GameView from "./game";
-// import { signOut } from "firebase/auth";
-// import { auth } from "./firebase";
 
 export default function App() {
   const [page, setPage] = useState("login");
@@ -20,7 +18,7 @@ export default function App() {
   const [creatingPenguin, setCreatingPenguin] = useState(false);
   const [penguinError, setPenguinError] = useState("");
 
-  // automatically detect persistent session on page load/refresh
+  // automatically detect persistent session on page load
   useEffect(() => {
     const unsubscribe = subscribeToAuthState(async (authSession) => {
       setSession(authSession);
@@ -32,11 +30,8 @@ export default function App() {
       }
       setLoading(false);
     });
-
     return () => unsubscribe();
-
   }, []);
-
   if (loading) {
     return (
       <main className="cg-scene" style={{ display: "grid", placeItems: "center" }}>
@@ -55,7 +50,6 @@ export default function App() {
           <p style={{ margin: "0.5rem 0" }}>
             Logged in as: <strong>{session.profile?.username || session.user.email}</strong>
           </p>
-
           <div style={{ background: "rgba(0,0,0,0.25)", padding: "1rem", borderRadius: "8px", margin: "1rem 0" }}>
             <h3 style={{ fontSize: "1rem", marginBottom: "0.5rem" }}>Penguin Status</h3>
             {penguin ? (
@@ -71,10 +65,8 @@ export default function App() {
                   disabled={creatingPenguin}
                   onClick={async () => {
                     if (creatingPenguin) return;
-
                     setCreatingPenguin(true);
                     setPenguinError("");
-
                     try {
                       const newPenguin = await createPenguin();
                       setPenguin(newPenguin);
@@ -89,7 +81,6 @@ export default function App() {
                 >
                   {creatingPenguin ? "Creating..." : "Create Starter Penguin"}
                 </button>
-
                 {penguinError && (
                   <p className="cg-error" role="alert">
                     {penguinError}
@@ -112,9 +103,7 @@ export default function App() {
             Log out
           </button>
         </section>
-
-        {/* Phaser Map View */}
-        <GameView />
+        <PhaserGame />
       </main>
     );
   }
@@ -134,13 +123,10 @@ export default function App() {
     <RegisterPage
       onRegister={async (data) => {
         const { profile } = await registerPlayer(data);
-
         await logoutPlayer();
-
         window.alert(
           `Account created! Welcome, ${profile.username}. Please log in.`
         );
-
         setPage("login"); //redirect user to login page
       }}
       onSwitchToLogin={() => setPage("login")}
