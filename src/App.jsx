@@ -8,6 +8,7 @@ import {
   subscribeToAuthState,
 } from "./services/authService";
 import { getPlayerPenguin, createPenguin } from "./services/penguinService";
+import GameView from "./game";
 // import { signOut } from "firebase/auth";
 // import { auth } from "./firebase";
 
@@ -44,11 +45,12 @@ export default function App() {
     );
   }
 
-  // Logged-in screen shows loaded penguin data
+  // Logged-in screen shows loaded penguin data and loaded campus map
+  // - easier to test map functionality this way; down the line change this so that penguin creation screen is separate from the campus map screen
   if (session.user && page !== "register") {
     return (
-      <main className="cg-scene" style={{ display: "grid", placeItems: "center", color: "white" }}>
-        <section className="cg-panel" style={{ textAlign: "center", maxWidth: "420px" }}>
+      <main className="cg-scene" style={{ display: "flex", flexDirection: "column", alignItems: "center", minHeight: "100vh", overflowY: "auto", padding: "2rem 1rem", color: "white" }}>
+        <section className="cg-panel" style={{ textAlign: "center", width: "100%", maxWidth: "420px", marginBottom: "1rem" }}>
           <h2 className="cg-panel-title">Welcome back!</h2>
           <p style={{ margin: "0.5rem 0" }}>
             Logged in as: <strong>{session.profile?.username || session.user.email}</strong>
@@ -110,6 +112,9 @@ export default function App() {
             Log out
           </button>
         </section>
+
+        {/* Phaser Map View */}
+        <GameView />
       </main>
     );
   }
